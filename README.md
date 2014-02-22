@@ -38,7 +38,7 @@ JHotCorner.getInstance().setShowCornerImage(true);
 ```
 To set own corner image:
 ```java
-JHotCorner.getInstance().setCornerImageUrl(getClass().getClassLoader().getResource("examples/big.png"));
+JHotCorner.getInstance().setCornerImageUrl(getClass().getClassLoader().getResource("example.png"));
 ```
 To change corner radius:
 ```java
