@@ -29,13 +29,18 @@ Implement 'JHotCornerInterface'. That will add four methods:
     }
 ```
 To register a corner:
+```java
 JHotCorner.getInstance().registerHotCorner(JHotCorner.Corner.TOP_LEFT, this);
-
+```
 To show default corner image:
+```java
 JHotCorner.getInstance().setShowCornerImage(true);
-
+```
 To set own corner image:
+```java
 JHotCorner.getInstance().setCornerImageUrl(getClass().getClassLoader().getResource("examples/big.png"));
-
+```
 To change corner radius:
+```java
 JHotCorner.getInstance().setCornerRadius(60);
+```
