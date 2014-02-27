@@ -17,8 +17,11 @@ public class JHotCorner {
     private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     private HashMap<Corner, HashSet<JHotCornerInterface>> cornerMap;
     private Point currentCornerPoint = null;
+    private Thread cornerThread = null;
+    private long cornerThreadId = 0;
 
-    private double radius = 6;
+    private int sleepMillis = 20;
+    private double pixelRadius = 6;
     private boolean showImage = false;
     private URL imageUrl = getClass().getClassLoader().getResource("default.png");
 
@@ -27,22 +30,26 @@ public class JHotCorner {
         for (Corner corner : Corner.values()) {
             cornerMap.put(corner, new HashSet<JHotCornerInterface>());
         }
-
-        startCornerObservation();
     }
 
     public static JHotCorner getInstance() {
         return instance;
     }
 
-    private void startCornerObservation() {
-        new Thread(new Runnable() {
+    private void initObservationThread() {
+        cornerThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 boolean switchBool = true;
                 Point lastPosition = new Point();
 
-                while (true) {
+                while (Thread.currentThread().getId() == cornerThreadId) {
+                    try {
+                        Thread.sleep(sleepMillis);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                     Point currentPosition = MouseInfo.getPointerInfo().getLocation();
                     if (!currentPosition.equals(lastPosition)) {
                         lastPosition = currentPosition;
@@ -105,7 +112,7 @@ public class JHotCorner {
                     }
                 }
             }
-        }).start();
+        });
     }
 
     private boolean isInCorner(Corner corner, Point currentPosition) {
@@ -123,9 +130,9 @@ public class JHotCorner {
                 currentCornerPoint = new Point((int)screenSize.getWidth(), (int)screenSize.getHeight());
         }
 
-        double x = currentCornerPoint.getX() - (radius/2);
-        double y = currentCornerPoint.getY() - (radius/2);
-        Ellipse2D circle = new Ellipse2D.Double(x, y, radius, radius);
+        double x = currentCornerPoint.getX() - (pixelRadius /2);
+        double y = currentCornerPoint.getY() - (pixelRadius /2);
+        Ellipse2D circle = new Ellipse2D.Double(x, y, pixelRadius, pixelRadius);
 
         if (circle.contains(currentPosition.getX(), currentPosition.getY())) {
             return true;
@@ -136,18 +143,32 @@ public class JHotCorner {
 
     public void registerHotCorner(final Corner corner, JHotCornerInterface owner) {
         cornerMap.get(corner).add(owner);
+        if (cornerThread == null) {
+            initObservationThread();
+            cornerThreadId = cornerThread.getId();
+            cornerThread.start();
+        }
     }
 
     public void unregisterHotCorner(Corner corner, JHotCornerInterface owner) {
         cornerMap.get(corner).remove(owner);
+
+        boolean tl = cornerMap.get(Corner.TOP_LEFT).isEmpty();
+        boolean tr = cornerMap.get(Corner.TOP_RIGHT).isEmpty();
+        boolean bl = cornerMap.get(Corner.BOTTOM_LEFT).isEmpty();
+        boolean br = cornerMap.get(Corner.BOTTOM_RIGHT).isEmpty();
+        if (tl && tr && bl && br) {
+            cornerThreadId = 0;
+            cornerThread = null;
+        }
     }
 
     public void setCornerRadius(int radius) {
-        this.radius = radius;
+        this.pixelRadius = radius;
     }
 
     public double getCornerRadius() {
-        return radius;
+        return pixelRadius;
     }
 
     public void setShowCornerImage(boolean showGraphic) {
@@ -162,8 +183,18 @@ public class JHotCorner {
         this.imageUrl = imageUrl;
     }
 
-    public URL getCornerImagePath() {
+    public URL getCornerImageUrl() {
         return imageUrl;
+    }
+
+    public int getSleepMillis() {
+        return sleepMillis;
+    }
+
+    public void setSleepMillis(int sleepMillis) {
+        if (sleepMillis >= 0) {
+            this.sleepMillis = sleepMillis;
+        }
     }
 
     private void showImage(Corner corner) {

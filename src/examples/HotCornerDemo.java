@@ -22,9 +22,10 @@ public class HotCornerDemo extends JFrame implements JHotCornerInterface {
         pack();
         setLocationRelativeTo(null);
 
-        JHotCorner.getInstance().setCornerRadius(60);
+        JHotCorner.getInstance().setCornerRadius(20);
         JHotCorner.getInstance().setShowCornerImage(true);
         JHotCorner.getInstance().setCornerImageUrl(getClass().getClassLoader().getResource("examples/big.png"));
+
         JHotCorner.getInstance().registerHotCorner(JHotCorner.Corner.TOP_LEFT, this);
         JHotCorner.getInstance().registerHotCorner(JHotCorner.Corner.TOP_RIGHT, this);
         JHotCorner.getInstance().registerHotCorner(JHotCorner.Corner.BOTTOM_LEFT, this);
