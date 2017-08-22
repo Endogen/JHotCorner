@@ -1,12 +1,8 @@
-JHotCorner
-==========
-
+# JHotCorner
 Hot corner implementation in Java. Inspired by GNOME 3.10.
 
-How to use
-==========
-
-Implement 'JHotCornerInterface'. That will add four methods:
+## How to use
+Implement `JHotCornerInterface`. That will add four methods:
 ```java
     @Override
     public void onTopLeftCorner() {
